@@ -1,0 +1,30 @@
+{
+  "name": "resty",
+  "version": "1.0.0",
+  "description": "Express middleware for clear and concise http response handling.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest spec.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "rest",
+    "resty",
+    "middleware"
+  ],
+  "author": "Ben Bakhar",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^24.0.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benbakhar/resty.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benbakhar/resty/issues"
+  },
+  "homepage": "https://github.com/benbakhar/resty#readme"
+}
