@@ -1,10 +1,19 @@
 language: node_js
-deploy:
-  provider: npm
-  email: benbakhar@gmail.com
-  api_key: $NPM_API_KEY
-  on:
-    branch: master
-cache:
-  directories:
-  - "$HOME/.npm"
+install:
+  - npm ci
+jobs:
+  include:
+    - stage: test
+      script:
+        - echo "Running unit tests"
+        - npm test
+    - stage: release
+      script:
+        - echo "Releasing version"
+      deploy:
+        provider: npm
+        email: '$NPM_EMAIL'
+        api_key: '$NPM_TOKEN'
+        skip_cleanup: true
+        on:
+          branch: master
