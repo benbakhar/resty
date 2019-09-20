@@ -1,0 +1,10 @@
+language: node_js
+deploy:
+  provider: npm
+  email: benbakhar@gmail.com
+  api_key: $NPM_API_KEY
+  on:
+    branch: master
+cache:
+  directories:
+  - "$HOME/.npm"

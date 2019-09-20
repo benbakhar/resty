@@ -30,7 +30,7 @@ const resty = (options = {}) => {
     return (request, response, next) => {
 
         const respond = (status, message, payload = {}, headers = {}) => {
-            response.status(status).json({ message, ...payload });
+            response.status(status).json({ message, payload });
         }
 
         response.success = (payload, message = HTTP_MESSAGE.success) => {

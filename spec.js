@@ -2,10 +2,7 @@ const resty = require('./index');
 
 const responseStatusSpy = jest.fn(() => ({ json: responseJsonSpy }))
 const responseJsonSpy = jest.fn()
-
-const responseMock = {
-    status: responseStatusSpy
-}
+const responseMock = { status: responseStatusSpy }
 
 const nextMock = jest.fn();
 
@@ -33,16 +30,15 @@ describe('resty', () => {
                 }
             };
 
-            const middleware = resty(options)({}, responseMock, nextMock);
+            resty(options)({}, responseMock, nextMock);
 
             responseMock.error();
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(options.statusCodes.error);
+            expect(responseStatusSpy).toHaveBeenCalledWith(503);
         });
     });
 
     describe('success()', () => {
-
         it('respond with appropriate status code', () => {
             responseMock.success();
 
@@ -57,13 +53,12 @@ describe('resty', () => {
             const spyArgument = responseJsonSpy.mock.calls[0][0];
 
             for (key in payload) {
-                expect(payload[key]).toBe(spyArgument[key]);
+                expect(payload).toBe(spyArgument.payload);
             }
         });
     });
 
     describe('error()', () => {
-
         it('respond with appropriate status code', () => {
             responseMock.error();
 
