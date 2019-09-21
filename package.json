@@ -4,7 +4,8 @@
   "description": "Express middleware for clear and concise http response handling.",
   "main": "index.js",
   "scripts": {
-    "test": "jest spec.js"
+    "test": "jest spec.js",
+    "lint": "eslint -c .eslintrc.json *.js --ignore-pattern \"node_modules/\""
   },
   "keywords": [
     "node",
@@ -16,6 +17,7 @@
   "author": "Ben Bakhar",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^6.4.0",
     "jest": "^24.0.0"
   },
   "dependencies": {},

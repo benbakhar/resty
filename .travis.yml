@@ -7,6 +7,9 @@ jobs:
       script:
         - echo "Running unit tests"
         - npm test
+    - stage: lint
+      script:
+        - npm run lint
     - stage: release
       script:
         - echo "Releasing version"

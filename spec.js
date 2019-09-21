@@ -1,78 +1,74 @@
 const resty = require('./index');
 
-const responseStatusSpy = jest.fn(() => ({ json: responseJsonSpy }))
-const responseJsonSpy = jest.fn()
-const responseMock = { status: responseStatusSpy }
+const responseStatusSpy = jest.fn(() => ({ json: responseJsonSpy }));
+const responseJsonSpy = jest.fn();
+const responseMock = { status: responseStatusSpy };
 
 const nextMock = jest.fn();
 
 describe('resty', () => {
-    let middleware;
+  beforeEach(() => {
+    resty()({}, responseMock, nextMock);
+  });
 
-    beforeEach(() => {
-        middleware = resty()({}, responseMock, nextMock);
+  afterEach(() => {
+    responseStatusSpy.mockClear();
+    responseJsonSpy.mockClear();
+  });
+
+  describe('init', () => {
+    it('call next middleware upon init', () => {
+      expect(nextMock).toHaveBeenCalled();
     });
 
-    afterEach(() => {
-        responseStatusSpy.mockClear();
-        responseJsonSpy.mockClear();
-    })
+    it('register custom status code for error response', () => {
+      const options = {
+        statusCodes: {
+          error: 503
+        }
+      };
 
-    describe('init', () => {
-        it('call next middleware upon init', () => {
-            expect(nextMock).toHaveBeenCalled();
-        });
+      resty(options)({}, responseMock, nextMock);
 
-        it('register custom status code for error response', () => {
-            const options = {
-                statusCodes: {
-                    error: 503
-                }
-            };
+      responseMock.error();
 
-            resty(options)({}, responseMock, nextMock);
+      expect(responseStatusSpy).toHaveBeenCalledWith(503);
+    });
+  });
 
-            responseMock.error();
+  describe('success()', () => {
+    it('respond with appropriate status code', () => {
+      responseMock.success();
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(503);
-        });
+      expect(responseStatusSpy).toHaveBeenCalledWith(200);
     });
 
-    describe('success()', () => {
-        it('respond with appropriate status code', () => {
-            responseMock.success();
+    it('respond with appropriate payload', () => {
+      const payload = { foo: 'bar' };
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(200);
-        });
+      responseMock.success(payload);
 
-        it('respond with appropriate payload', () => {
-            const payload = { foo: 'bar' };
+      const spyArgument = responseJsonSpy.mock.calls[0][0];
 
-            responseMock.success(payload);
+      expect(payload).toBe(spyArgument.payload);
+    });
+  });
 
-            const spyArgument = responseJsonSpy.mock.calls[0][0];
+  describe('error()', () => {
+    it('respond with appropriate status code', () => {
+      responseMock.error();
 
-            for (key in payload) {
-                expect(payload).toBe(spyArgument.payload);
-            }
-        });
+      expect(responseStatusSpy).toHaveBeenCalledWith(500);
     });
 
-    describe('error()', () => {
-        it('respond with appropriate status code', () => {
-            responseMock.error();
+    it('respond with appropriate message', () => {
+      const message = 'some error message';
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(500);
-        });
+      responseMock.error(message);
 
-        it('respond with appropriate message', () => {
-            const message = 'some error message'
+      const spyArgument = responseJsonSpy.mock.calls[0][0];
 
-            responseMock.error(message);
-
-            const spyArgument = responseJsonSpy.mock.calls[0][0];
-
-            expect(spyArgument.message).toBe(message);
-        });
-    })
-})
+      expect(spyArgument.message).toBe(message);
+    });
+  });
+});
