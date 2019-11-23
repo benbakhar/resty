@@ -1,78 +1,93 @@
 const resty = require('./index');
 
-const responseStatusSpy = jest.fn(() => ({ json: responseJsonSpy }))
-const responseJsonSpy = jest.fn()
-const responseMock = { status: responseStatusSpy }
+const responseStatusSpy = jest.fn(() => ({ json: responseJsonSpy }));
+const responseJsonSpy = jest.fn();
+const responseHeadersSpy = jest.fn(() => responseMock);
+const responseMock = {
+  status: responseStatusSpy,
+  set: responseHeadersSpy
+};
 
 const nextMock = jest.fn();
 
 describe('resty', () => {
-    let middleware;
+  beforeEach(() => {
+    resty()({}, responseMock, nextMock);
+  });
 
-    beforeEach(() => {
-        middleware = resty()({}, responseMock, nextMock);
+  afterEach(() => {
+    responseStatusSpy.mockClear();
+    responseJsonSpy.mockClear();
+    responseHeadersSpy.mockClear();
+  });
+
+  describe('init', () => {
+    it('call next middleware upon init', () => {
+      expect(nextMock).toHaveBeenCalled();
     });
 
-    afterEach(() => {
-        responseStatusSpy.mockClear();
-        responseJsonSpy.mockClear();
-    })
+    it('register custom status code for error response', () => {
+      const options = {
+        statusCodes: {
+          error: 503
+        }
+      };
 
-    describe('init', () => {
-        it('call next middleware upon init', () => {
-            expect(nextMock).toHaveBeenCalled();
-        });
+      resty(options)({}, responseMock, nextMock);
 
-        it('register custom status code for error response', () => {
-            const options = {
-                statusCodes: {
-                    error: 503
-                }
-            };
+      responseMock.error();
 
-            resty(options)({}, responseMock, nextMock);
+      expect(responseStatusSpy).toHaveBeenCalledWith(503);
+    });
+  });
 
-            responseMock.error();
+  describe('respond', () => {
+    describe('headers', () => {
+      it('should set custom headers on respons object', () => {
+        const headers = { 'X-my-header': 'my-header-value' };
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(503);
-        });
+        responseMock.success({}, null, headers);
+
+        expect(responseHeadersSpy).toHaveBeenCalledWith(headers);
+      });
+    });
+  });
+
+  describe('success()', () => {
+    it('respond with appropriate status code', () => {
+      responseMock.success(111, 222, 333);
+
+      expect(responseStatusSpy).toHaveBeenCalledWith(200);
     });
 
-    describe('success()', () => {
-        it('respond with appropriate status code', () => {
-            responseMock.success();
+    it('respond with appropriate payload', () => {
+      const payload = { foo: 'bar' };
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(200);
-        });
+      responseMock.success(payload);
 
-        it('respond with appropriate payload', () => {
-            const payload = { foo: 'bar' };
+      const spyArgument = responseJsonSpy.mock.calls[0][0];
 
-            responseMock.success(payload);
+      for (const key in payload) {
+        expect(payload[key]).toBe(spyArgument.payload[key]);
+      }
+    });
+  });
 
-            const spyArgument = responseJsonSpy.mock.calls[0][0];
+  describe('error()', () => {
+    it('respond with appropriate status code', () => {
+      responseMock.error();
 
-            for (key in payload) {
-                expect(payload).toBe(spyArgument.payload);
-            }
-        });
+      expect(responseStatusSpy).toHaveBeenCalledWith(500);
     });
 
-    describe('error()', () => {
-        it('respond with appropriate status code', () => {
-            responseMock.error();
+    it('respond with appropriate message', () => {
+      const message = 'some error message';
 
-            expect(responseStatusSpy).toHaveBeenCalledWith(500);
-        });
+      responseMock.error(null, message);
 
-        it('respond with appropriate message', () => {
-            const message = 'some error message'
+      const spyArgument = responseJsonSpy.mock.calls[0][0];
 
-            responseMock.error(message);
-
-            const spyArgument = responseJsonSpy.mock.calls[0][0];
-
-            expect(spyArgument.message).toBe(message);
-        });
-    })
-})
+      expect(spyArgument.message).toBe(message);
+    });
+  });
+});
