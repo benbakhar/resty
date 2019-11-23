@@ -22,8 +22,8 @@ which will respond with the following response:
 
 ```js
 {
-    "code": 200,
-    "message": "success"
+    "message": "success",
+    "payload": {}
 }
 ```
 ## Methods

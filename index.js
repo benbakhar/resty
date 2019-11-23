@@ -18,7 +18,7 @@ const HTTP_MESSAGE = {
     error: 'Internal error'
 }
 
-const resty = (options = {}) => {
+module.exports = (options = {}) => {
     let statusCodes = { ...HTTP_CODE };
 
     if (typeof options.statusCodes === 'object') {
@@ -27,7 +27,7 @@ const resty = (options = {}) => {
         }
     }
 
-    return (request, response, next) => {
+    return function resty(request, response, next) {
 
         const respond = (status, message, payload = {}, headers = {}) => {
             response.status(status).json({ message, payload });
@@ -64,5 +64,3 @@ const resty = (options = {}) => {
         next();
     }
 }
-
-module.exports = resty;
