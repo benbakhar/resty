@@ -1,6 +1,6 @@
 {
   "name": "@benbakhar/resty",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Express middleware for clear and concise http response handling.",
   "main": "index.js",
   "scripts": {
