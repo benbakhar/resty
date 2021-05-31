@@ -11,5 +11,6 @@ updates:
       interval: "daily"
     assignees:
       - "benbakhar"
-    reviewers:
-      - "benbakhar"
+    labels:
+      - "security"
+      - "dependencies"
